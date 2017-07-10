@@ -26,22 +26,34 @@ namespace core.Controllers
 
         // GET: api/values
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IEnumerable<TodoItem> Get()
         {
-            return new string[] { "value1", "value2" };
+            return _context.TodoItems.ToList();
         }
 
         // GET api/values/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("{id}", Name = "GetTodo")]
+        public IActionResult Get(int id)
         {
-            return "value";
+            var item = _context.TodoItems.FirstOrDefault(x=>x.Id == id);
+            if (item == null)
+            {
+                return NotFound();
+            }
+            return new ObjectResult(item);
         }
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]string value)
+        public IActionResult Post([FromBody] TodoItem item)
         {
+            if (item == null)
+            {
+                return BadRequest();
+            }
+            _context.TodoItems.Add(item);
+            _context.SaveChanges();
+            return CreatedAtRoute("GetTodo", new { id = item.Id }, item);
         }
 
         // PUT api/values/5
