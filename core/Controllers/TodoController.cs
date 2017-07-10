@@ -58,8 +58,22 @@ namespace core.Controllers
 
         // PUT api/values/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public IActionResult Put(int id, [FromBody]TodoItem item)
         {
+            if (item == null || item.Id != id)
+            {
+                return BadRequest();
+            }
+            var todo = _context.TodoItems.FirstOrDefault(x => x.Id == id);
+            if (todo == null)
+            {
+                return NotFound();
+            }
+            todo.IsComplete = item.IsComplete;
+            todo.Name = item.Name;
+            _context.TodoItems.Update(todo);
+            _context.SaveChanges();
+            return new NoContentResult();
         }
 
         // DELETE api/values/5
